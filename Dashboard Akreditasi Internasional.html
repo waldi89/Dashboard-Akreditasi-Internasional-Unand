@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analitik Akreditasi Internasional</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom scrollbar for table container */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-3">
+                    <i data-lucide="bar-chart-2" class="w-8 h-8 text-emerald-600"></i>
+                    Dashboard Akreditasi Internasional
+                </h1>
+                <p class="text-slate-500 mt-1">Pemantauan persentase lembaga dan masa berlaku sertifikat.</p>
+            </div>
+            
+            <!-- Filter Section -->
+            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <!-- Filter Jenjang -->
+                <div class="w-full md:w-48 relative">
+                    <i data-lucide="graduation-cap" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <select id="filterJenjang" class="w-full pl-10 pr-8 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm appearance-none bg-slate-50 text-slate-700 cursor-pointer font-medium">
+                        <option value="ALL">Semua Jenjang</option>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                </div>
+
+                <!-- Filter Program Studi -->
+                <div class="w-full md:w-80 relative">
+                    <i data-lucide="filter" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <select id="filterProdi" class="w-full pl-10 pr-8 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm appearance-none bg-slate-50 text-slate-700 cursor-pointer font-medium">
+                        <option value="ALL">Semua Program Studi</option>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card 0: Total Prodi -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+                <div class="p-4 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <i data-lucide="book-open" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Total Program Studi</p>
+                    <h3 id="statTotalProdi" class="text-3xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <!-- Card 1 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+                <div class="p-4 bg-blue-50 text-blue-600 rounded-xl">
+                    <i data-lucide="award" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Total Sertifikat</p>
+                    <h3 id="statTotal" class="text-3xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+                <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl">
+                    <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Status Aktif (> 1 Tahun)</p>
+                    <h3 id="statAktif" class="text-3xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5">
+                <div class="p-4 bg-rose-50 text-rose-600 rounded-xl">
+                    <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Kadaluarsa / Habis Tahun Ini</p>
+                    <h3 id="statWarning" class="text-3xl font-bold text-slate-800">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Doughnut Chart: Persentase Lembaga -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-500"></i>
+                    Persentase Lembaga Akreditasi
+                </h3>
+                <div class="relative flex-1 min-h-[300px] flex items-center justify-center">
+                    <canvas id="lembagaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bar Chart: Status Masa Berlaku -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-5 h-5 text-amber-500"></i>
+                    Status Sisa Waktu (Masa Berlaku)
+                </h3>
+                <div class="relative flex-1 min-h-[300px] flex items-center justify-center w-full">
+                    <canvas id="masaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5 text-slate-500"></i>
+                    Rincian Masa Berlaku Program Studi
+                </h3>
+            </div>
+            <div class="overflow-x-auto scrollbar-hide">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600">
+                            <th class="px-6 py-4 font-semibold text-center w-16">No</th>
+                            <th class="px-6 py-4 font-semibold">Program Studi</th>
+                            <th class="px-6 py-4 font-semibold">Lembaga</th>
+                            <th class="px-6 py-4 font-semibold">Masa Berlaku (Teks Asli)</th>
+                            <th class="px-6 py-4 font-semibold text-center">Status Sisa Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailBody" class="divide-y divide-slate-100">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        lucide.createIcons();
+
+        // Data Original (sama dengan data di halaman tabel utama)
+        const dataAkreditasi = [
+            { id: 1, kode: "61201", nama: "Manajemen (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "11 Okt 2020 – 11 Okt 2025" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 2, kode: "60201", nama: "Ekonomi (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2020 – 2025" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 3, kode: "62201", nama: "Akuntansi (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2018 – 2023" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 4, kode: "61101", nama: "Manajemen (S2)", jenjang: "S2", internasional: [ { nama: "ABEST 21", masa: "2017 – 2022" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 5, kode: "62101", nama: "Akuntansi (S2)", jenjang: "S2", internasional: [ { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 6, kode: "48201", nama: "Farmasi (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2020 – 2025" } ] },
+            { id: 7, kode: "11201", nama: "Kedokteran (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2018 – 2022" } ] },
+            { id: 8, kode: "46201", nama: "Biologi (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2018 – 2022" }, { nama: "ASIIN", masa: "2023 – 2028" } ] },
+            { id: 9, kode: "46101", nama: "Biologi (S2)", jenjang: "S2", internasional: [ { nama: "ASIIN", masa: "2023 – 2028" } ] },
+            { id: 10, kode: "45201", nama: "Fisika (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2020 – 2025" } ] },
+            { id: 11, kode: "21201", nama: "Teknik Mesin (S1)", jenjang: "S1", internasional: [ { nama: "ABET", masa: "2018 – 2026" }, { nama: "IABEE", masa: "2026 – 2030" } ] },
+            { id: 12, kode: "20201", nama: "Teknik Elektro (S1)", jenjang: "S1", internasional: [ { nama: "IABEE", masa: "2020 – 2025" }, { nama: "IABEE", masa: "2026 – 2030" } ] },
+            { id: 13, kode: "26201", nama: "Teknik Industri (S1)", jenjang: "S1", internasional: [ { nama: "ABET", masa: "2018 – 2026" }, { nama: "IABEE", masa: "2025 – 2030" } ] },
+            { id: 14, kode: "25201", nama: "Teknik Lingkungan (S1)", jenjang: "S1", internasional: [ { nama: "ABET", masa: "2019 – 2026" }, { nama: "IABEE", masa: "2025 – 2030" } ] },
+            { id: 15, kode: "79201", nama: "Sastra Indonesia (S1)", jenjang: "S1", internasional: [ { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 16, kode: "79204", nama: "Sastra Jepang (S1)", jenjang: "S1", internasional: [ { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
+            { id: 17, kode: "47201", nama: "Kimia (S1)", jenjang: "S1", internasional: [ { nama: "RSC", masa: "2023 – 2027" } ] },
+            { id: 18, kode: "44201", nama: "Matematika (S1)", jenjang: "S1", internasional: [ { nama: "ASIIN", masa: "2024 – 2029" } ] },
+            { id: 19, kode: "44101", nama: "Matematika (S2)", jenjang: "S2", internasional: [ { nama: "ASIIN", masa: "2024 – 2029" } ] },
+            { id: 20, kode: "14201", nama: "Keperawatan (S1 & Profesi)", jenjang: "S1 & Profesi", internasional: [ { nama: "ASIIN", masa: "2024 – 2029" } ] },
+            { id: 21, kode: "14101", nama: "Keperawatan (S2)", jenjang: "S2", internasional: [ { nama: "ASIIN", masa: "2024 – 2029" } ] },
+            { id: 22, kode: "54294", nama: "Ilmu Tanah (S1)", jenjang: "S1", internasional: [ { nama: "ASIIN", masa: "2024 – 2030" } ] },
+            { id: 23, kode: "54105", nama: "Ilmu Tanah (S2)", jenjang: "S2", internasional: [ { nama: "ASIIN", masa: "2024 – 2030" } ] },
+            { id: 24, kode: "74207", nama: "Hukum (S1)", jenjang: "S1", internasional: [ { nama: "FIBAA", masa: "2024 – 2029" } ] },
+            { id: 25, kode: "74108", nama: "Hukum (S2)", jenjang: "S2", internasional: [ { nama: "FIBAA", masa: "2024 – 2029" } ] },
+            { id: 26, kode: "57201", nama: "Sistem Informasi (S1)", jenjang: "S1", internasional: [ { nama: "IABEE", masa: "2026 – 2030" } ] },
+            { id: 27, kode: "56201", nama: "Teknik Komputer (S1)", jenjang: "S1", internasional: [ { nama: "IABEE", masa: "2026 – 2030" } ] },
+            { id: 28, kode: "79202", nama: "Sastra Inggris (S1)", jenjang: "S1", internasional: [ { nama: "FIBAA", masa: "2026 – 2031" } ] },
+            { id: 29, kode: "79211", nama: "Sastra Minangkabau (S1)", jenjang: "S1", internasional: [ { nama: "FIBAA", masa: "2026 – 2031" } ] }
+        ];
+
+        // Konstanta Tahun Referensi
+        const CURRENT_YEAR = 2026;
+
+        // Referensi Chart Instance
+        let chartLembaga = null;
+        let chartMasa = null;
+
+        // 1. Fungsi Mengekstrak Tahun Akhir dan Menentukan Status
+        function getStatusMasa(masaString) {
+            // Mengambil 4 digit angka terakhir dari string (diasumsikan sebagai tahun berakhirnya)
+            const parts = masaString.split(/[-–]/);
+            const endPart = parts[parts.length - 1] || "";
+            const yearMatch = endPart.match(/\d{4}/);
+            
+            if (!yearMatch) return { status: "Tidak Diketahui", color: "bg-slate-100 text-slate-700" };
+            
+            const endYear = parseInt(yearMatch[0]);
+
+            if (endYear < CURRENT_YEAR) {
+                return { status: "Kadaluarsa", color: "bg-rose-100 text-rose-700 border border-rose-200" };
+            } else if (endYear === CURRENT_YEAR) {
+                return { status: "Habis Tahun Ini", color: "bg-amber-100 text-amber-700 border border-amber-200" };
+            } else {
+                return { status: "Aktif", color: "bg-emerald-100 text-emerald-700 border border-emerald-200" };
+            }
+        }
+
+        // 2. Inisialisasi Dropdown Filter Prodi
+        function initFilter() {
+            const filterProdi = document.getElementById('filterProdi');
+            const filterJenjang = document.getElementById('filterJenjang');
+            
+            const jenjangSet = new Set();
+
+            dataAkreditasi.forEach(item => {
+                // Populate Prodi
+                filterProdi.insertAdjacentHTML('beforeend', `<option value="${item.kode}">${item.nama}</option>`);
+                
+                // Collect unique Jenjang
+                if(item.jenjang) jenjangSet.add(item.jenjang);
+            });
+
+            // Populate Jenjang options dynamically
+            Array.from(jenjangSet).sort().forEach(j => {
+                filterJenjang.insertAdjacentHTML('beforeend', `<option value="${j}">${j}</option>`);
+            });
+
+            // Listeners
+            filterProdi.addEventListener('change', updateDashboard);
+            filterJenjang.addEventListener('change', updateDashboard);
+        }
+
+        // 3. Update Visual Dashboard
+        function updateDashboard() {
+            
+            const selectedKode = document.getElementById('filterProdi').value;
+            const selectedJenjang = document.getElementById('filterJenjang').value;
+            
+            // a. Siapkan array untuk sertifikat (chart) dan array prodi (tabel)
+            let allCertificates = [];
+            let filteredProdis = [];
+            
+            dataAkreditasi.forEach(prodi => {
+                const matchProdi = selectedKode === "ALL" || prodi.kode === selectedKode;
+                const matchJenjang = selectedJenjang === "ALL" || prodi.jenjang === selectedJenjang;
+
+                if (matchProdi && matchJenjang) {
+                    
+                    let prodiWithStatus = {
+                        ...prodi,
+                        certs: []
+                    };
+
+                    prodi.internasional.forEach(intl => {
+                        const statusObj = getStatusMasa(intl.masa);
+                        
+                        // Push ke flat array untuk statistik & chart
+                        allCertificates.push({
+                            lembaga: intl.nama,
+                            masaAsli: intl.masa,
+                            statusObj: statusObj
+                        });
+
+                        // Push ke array prodi untuk render tabel (dikeloimpokkan)
+                        prodiWithStatus.certs.push({
+                            lembaga: intl.nama,
+                            masaAsli: intl.masa,
+                            statusObj: statusObj
+                        });
+                    });
+
+                    if (prodiWithStatus.certs.length > 0) {
+                        filteredProdis.push(prodiWithStatus);
+                    }
+                }
+            });
+
+            // b. Hitung Statistik (Cards)
+            let totalAktif = 0;
+            let totalWarning = 0;
+
+            allCertificates.forEach(cert => {
+                if (cert.statusObj.status === "Aktif") totalAktif++;
+                else totalWarning++; // Gabungan Kadaluarsa & Habis Tahun Ini
+            });
+
+            document.getElementById('statTotalProdi').innerText = filteredProdis.length;
+            document.getElementById('statTotal').innerText = allCertificates.length;
+            document.getElementById('statAktif').innerText = totalAktif;
+            document.getElementById('statWarning').innerText = totalWarning;
+
+            // c. Siapkan Data untuk Chart Lembaga (Pie)
+            const lembagaCounts = {};
+            allCertificates.forEach(cert => {
+                lembagaCounts[cert.lembaga] = (lembagaCounts[cert.lembaga] || 0) + 1;
+            });
+
+            // d. Siapkan Data untuk Chart Masa Berlaku (Bar)
+            const statusCounts = { "Aktif": 0, "Habis Tahun Ini": 0, "Kadaluarsa": 0 };
+            allCertificates.forEach(cert => {
+                if(statusCounts[cert.statusObj.status] !== undefined) {
+                    statusCounts[cert.statusObj.status]++;
+                }
+            });
+
+            // e. Render Chart
+            renderCharts(lembagaCounts, statusCounts);
+
+            // f. Render Detail Table (Menggunakan data yang dikelompokkan per prodi)
+            renderTable(filteredProdis);
+        }
+
+        // 4. Render Chart.js
+        function renderCharts(lembagaData, statusData) {
+            // Colors
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e'];
+
+            // -- Chart Lembaga --
+            const ctxLembaga = document.getElementById('lembagaChart').getContext('2d');
+            if (chartLembaga) chartLembaga.destroy();
+
+            const lembagaLabels = Object.keys(lembagaData);
+            const lembagaValues = Object.values(lembagaData);
+
+            chartLembaga = new Chart(ctxLembaga, {
+                type: 'doughnut',
+                data: {
+                    labels: lembagaLabels,
+                    datasets: [{
+                        data: lembagaValues,
+                        backgroundColor: colors.slice(0, lembagaLabels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 13 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    let value = context.parsed;
+                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    let percentage = Math.round((value / total) * 100) + '%';
+                                    return label + value + ' Sertifikat (' + percentage + ')';
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // -- Chart Masa Berlaku --
+            const ctxMasa = document.getElementById('masaChart').getContext('2d');
+            if (chartMasa) chartMasa.destroy();
+
+            chartMasa = new Chart(ctxMasa, {
+                type: 'bar',
+                data: {
+                    labels: ['Aktif', 'Habis Tahun Ini', 'Kadaluarsa'],
+                    datasets: [{
+                        label: 'Jumlah Sertifikat',
+                        data: [statusData['Aktif'], statusData['Habis Tahun Ini'], statusData['Kadaluarsa']],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)', // Emerald
+                            'rgba(245, 158, 11, 0.8)', // Amber
+                            'rgba(244, 63, 94, 0.8)'   // Rose
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // 5. Render Detail Table
+        function renderTable(prodis) {
+            const tbody = document.getElementById('detailBody');
+            let html = '';
+
+            if(prodis.length === 0) {
+                html = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Tidak ada data ditemukan.</td></tr>`;
+            } else {
+                prodis.forEach((prodi, index) => {
+                    prodi.certs.forEach((cert, certIdx) => {
+                        // Garis bawah lebih tebal untuk batas antar prodi
+                        const isLast = certIdx === prodi.certs.length - 1;
+                        const borderClass = isLast ? 'border-b-2 border-slate-200' : 'border-b border-slate-100';
+                        
+                        html += `<tr class="hover:bg-slate-50 transition-colors ${borderClass}">`;
+                        
+                        // Kolom No dan Program Studi hanya dirender di baris pertama tiap prodi
+                        if (certIdx === 0) {
+                            const rowSpan = prodi.certs.length;
+                            html += `
+                                <td rowspan="${rowSpan}" class="px-6 py-4 text-center text-slate-500 font-medium align-top">${index + 1}</td>
+                                <td rowspan="${rowSpan}" class="px-6 py-4 text-slate-800 font-medium align-top">${prodi.nama}</td>
+                            `;
+                        }
+
+                        html += `
+                            <td class="px-6 py-4 font-bold text-blue-700 align-middle">${cert.lembaga}</td>
+                            <td class="px-6 py-4 text-slate-600 align-middle">${cert.masaAsli}</td>
+                            <td class="px-6 py-4 text-center align-middle">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${cert.statusObj.color}">
+                                    ${cert.statusObj.status}
+                                </span>
+                            </td>
+                        </tr>`;
+                    });
+                });
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        // --- Eksekusi Saat Dimuat ---
+        initFilter();
+        updateDashboard(); // Tampilkan semua di awal
+
+    </script>
+</body>
+</html>
