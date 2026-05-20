@@ -30,7 +30,7 @@
     <div class="max-w-7xl mx-auto space-y-6">
         
         <!-- Header -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex flex-col md:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-3">
                     <i data-lucide="bar-chart-2" class="w-8 h-8 text-emerald-600"></i>
@@ -40,9 +40,9 @@
             </div>
             
             <!-- Filter Section -->
-            <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <div class="flex flex-wrap md:flex-nowrap gap-3 w-full lg:w-auto">
                 <!-- Filter Jenjang -->
-                <div class="w-full md:w-48 relative">
+                <div class="w-full md:w-40 relative">
                     <i data-lucide="graduation-cap" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5"></i>
                     <select id="filterJenjang" class="w-full pl-10 pr-8 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm appearance-none bg-slate-50 text-slate-700 cursor-pointer font-medium">
                         <option value="ALL">Semua Jenjang</option>
@@ -51,8 +51,20 @@
                     <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
                 </div>
 
+                <!-- Filter Status (Sisa Waktu) -->
+                <div class="w-full md:w-52 relative">
+                    <i data-lucide="clock" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5"></i>
+                    <select id="filterStatus" class="w-full pl-10 pr-8 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm appearance-none bg-slate-50 text-slate-700 cursor-pointer font-medium">
+                        <option value="ALL">Semua Status</option>
+                        <option value="Aktif">Aktif (> 1 Tahun)</option>
+                        <option value="Habis Tahun Ini">Habis Tahun Ini</option>
+                        <option value="Kadaluarsa">Kadaluarsa</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none"></i>
+                </div>
+
                 <!-- Filter Program Studi -->
-                <div class="w-full md:w-80 relative">
+                <div class="w-full md:w-64 relative">
                     <i data-lucide="filter" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5"></i>
                     <select id="filterProdi" class="w-full pl-10 pr-8 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm appearance-none bg-slate-50 text-slate-700 cursor-pointer font-medium">
                         <option value="ALL">Semua Program Studi</option>
@@ -93,7 +105,7 @@
                     <i data-lucide="check-circle-2" class="w-8 h-8"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500 font-medium mb-1">Status Aktif (> 1 Tahun)</p>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Status Aktif</p>
                     <h3 id="statAktif" class="text-3xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
@@ -104,7 +116,7 @@
                     <i data-lucide="alert-triangle" class="w-8 h-8"></i>
                 </div>
                 <div>
-                    <p class="text-sm text-slate-500 font-medium mb-1">Kadaluarsa / Habis Tahun Ini</p>
+                    <p class="text-sm text-slate-500 font-medium mb-1">Kadaluarsa/Habis</p>
                     <h3 id="statWarning" class="text-3xl font-bold text-slate-800">0</h3>
                 </div>
             </div>
@@ -136,22 +148,21 @@
             </div>
         </div>
 
-        <!-- Detail Table -->
+        <!-- Daftar Program Studi (Muncul untuk melihat rincian saat di-filter) -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-6 border-b border-slate-100">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="list" class="w-5 h-5 text-slate-500"></i>
-                    Rincian Masa Berlaku Program Studi
+                    Daftar Program Studi
                 </h3>
             </div>
             <div class="overflow-x-auto scrollbar-hide">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-600">
+                        <tr class="bg-white text-slate-600 border-b border-slate-200">
                             <th class="px-6 py-4 font-semibold text-center w-16">No</th>
                             <th class="px-6 py-4 font-semibold">Program Studi</th>
-                            <th class="px-6 py-4 font-semibold">Lembaga</th>
-                            <th class="px-6 py-4 font-semibold">Masa Berlaku (Teks Asli)</th>
+                            <th class="px-6 py-4 font-semibold">Lembaga & Masa Berlaku</th>
                             <th class="px-6 py-4 font-semibold text-center">Status Sisa Waktu</th>
                         </tr>
                     </thead>
@@ -168,7 +179,7 @@
     <script>
         lucide.createIcons();
 
-        // Data Original (sama dengan data di halaman tabel utama)
+        // Data Original
         const dataAkreditasi = [
             { id: 1, kode: "61201", nama: "Manajemen (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "11 Okt 2020 – 11 Okt 2025" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
             { id: 2, kode: "60201", nama: "Ekonomi (S1)", jenjang: "S1", internasional: [ { nama: "AUN-QA", masa: "2020 – 2025" }, { nama: "FIBAA", masa: "29 Juni 2022 – 28 Juni 2027" } ] },
@@ -210,7 +221,6 @@
 
         // 1. Fungsi Mengekstrak Tahun Akhir dan Menentukan Status
         function getStatusMasa(masaString) {
-            // Mengambil 4 digit angka terakhir dari string (diasumsikan sebagai tahun berakhirnya)
             const parts = masaString.split(/[-–]/);
             const endPart = parts[parts.length - 1] || "";
             const yearMatch = endPart.match(/\d{4}/);
@@ -228,22 +238,19 @@
             }
         }
 
-        // 2. Inisialisasi Dropdown Filter Prodi
+        // 2. Inisialisasi Filter
         function initFilter() {
             const filterProdi = document.getElementById('filterProdi');
             const filterJenjang = document.getElementById('filterJenjang');
+            const filterStatus = document.getElementById('filterStatus');
             
             const jenjangSet = new Set();
 
             dataAkreditasi.forEach(item => {
-                // Populate Prodi
                 filterProdi.insertAdjacentHTML('beforeend', `<option value="${item.kode}">${item.nama}</option>`);
-                
-                // Collect unique Jenjang
                 if(item.jenjang) jenjangSet.add(item.jenjang);
             });
 
-            // Populate Jenjang options dynamically
             Array.from(jenjangSet).sort().forEach(j => {
                 filterJenjang.insertAdjacentHTML('beforeend', `<option value="${j}">${j}</option>`);
             });
@@ -251,6 +258,7 @@
             // Listeners
             filterProdi.addEventListener('change', updateDashboard);
             filterJenjang.addEventListener('change', updateDashboard);
+            filterStatus.addEventListener('change', updateDashboard);
         }
 
         // 3. Update Visual Dashboard
@@ -258,8 +266,8 @@
             
             const selectedKode = document.getElementById('filterProdi').value;
             const selectedJenjang = document.getElementById('filterJenjang').value;
+            const selectedStatus = document.getElementById('filterStatus').value;
             
-            // a. Siapkan array untuk sertifikat (chart) dan array prodi (tabel)
             let allCertificates = [];
             let filteredProdis = [];
             
@@ -277,21 +285,25 @@
                     prodi.internasional.forEach(intl => {
                         const statusObj = getStatusMasa(intl.masa);
                         
-                        // Push ke flat array untuk statistik & chart
-                        allCertificates.push({
-                            lembaga: intl.nama,
-                            masaAsli: intl.masa,
-                            statusObj: statusObj
-                        });
+                        // Cek apakah status sertifikat ini cocok dengan filter status sisa waktu
+                        const matchStatus = selectedStatus === "ALL" || statusObj.status === selectedStatus;
 
-                        // Push ke array prodi untuk render tabel (dikeloimpokkan)
-                        prodiWithStatus.certs.push({
-                            lembaga: intl.nama,
-                            masaAsli: intl.masa,
-                            statusObj: statusObj
-                        });
+                        if (matchStatus) {
+                            allCertificates.push({
+                                lembaga: intl.nama,
+                                masaAsli: intl.masa,
+                                statusObj: statusObj
+                            });
+
+                            prodiWithStatus.certs.push({
+                                lembaga: intl.nama,
+                                masaAsli: intl.masa,
+                                statusObj: statusObj
+                            });
+                        }
                     });
 
+                    // Hanya masukkan prodi jika ada sertifikat yang lolos filter
                     if (prodiWithStatus.certs.length > 0) {
                         filteredProdis.push(prodiWithStatus);
                     }
@@ -304,7 +316,7 @@
 
             allCertificates.forEach(cert => {
                 if (cert.statusObj.status === "Aktif") totalAktif++;
-                else totalWarning++; // Gabungan Kadaluarsa & Habis Tahun Ini
+                else totalWarning++; 
             });
 
             document.getElementById('statTotalProdi').innerText = filteredProdis.length;
@@ -312,13 +324,13 @@
             document.getElementById('statAktif').innerText = totalAktif;
             document.getElementById('statWarning').innerText = totalWarning;
 
-            // c. Siapkan Data untuk Chart Lembaga (Pie)
+            // c. Chart Lembaga
             const lembagaCounts = {};
             allCertificates.forEach(cert => {
                 lembagaCounts[cert.lembaga] = (lembagaCounts[cert.lembaga] || 0) + 1;
             });
 
-            // d. Siapkan Data untuk Chart Masa Berlaku (Bar)
+            // d. Chart Status Sisa Waktu
             const statusCounts = { "Aktif": 0, "Habis Tahun Ini": 0, "Kadaluarsa": 0 };
             allCertificates.forEach(cert => {
                 if(statusCounts[cert.statusObj.status] !== undefined) {
@@ -326,19 +338,14 @@
                 }
             });
 
-            // e. Render Chart
             renderCharts(lembagaCounts, statusCounts);
-
-            // f. Render Detail Table (Menggunakan data yang dikelompokkan per prodi)
             renderTable(filteredProdis);
         }
 
         // 4. Render Chart.js
         function renderCharts(lembagaData, statusData) {
-            // Colors
             const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e'];
 
-            // -- Chart Lembaga --
             const ctxLembaga = document.getElementById('lembagaChart').getContext('2d');
             if (chartLembaga) chartLembaga.destroy();
 
@@ -353,33 +360,19 @@
                         data: lembagaValues,
                         backgroundColor: colors.slice(0, lembagaLabels.length),
                         borderWidth: 2,
-                        borderColor: '#ffffff',
-                        hoverOffset: 4
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'right', labels: { usePointStyle: true, padding: 20, font: { family: 'Inter', size: 13 } } },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) label += ': ';
-                                    let value = context.parsed;
-                                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    let percentage = Math.round((value / total) * 100) + '%';
-                                    return label + value + ' Sertifikat (' + percentage + ')';
-                                }
-                            }
-                        }
+                        legend: { position: 'right', labels: { usePointStyle: true, padding: 20 } }
                     },
                     cutout: '65%'
                 }
             });
 
-            // -- Chart Masa Berlaku --
             const ctxMasa = document.getElementById('masaChart').getContext('2d');
             if (chartMasa) chartMasa.destroy();
 
@@ -391,9 +384,9 @@
                         label: 'Jumlah Sertifikat',
                         data: [statusData['Aktif'], statusData['Habis Tahun Ini'], statusData['Kadaluarsa']],
                         backgroundColor: [
-                            'rgba(16, 185, 129, 0.8)', // Emerald
-                            'rgba(245, 158, 11, 0.8)', // Amber
-                            'rgba(244, 63, 94, 0.8)'   // Rose
+                            'rgba(16, 185, 129, 0.8)', 
+                            'rgba(245, 158, 11, 0.8)', 
+                            'rgba(244, 63, 94, 0.8)'   
                         ],
                         borderRadius: 6
                     }]
@@ -412,34 +405,37 @@
             });
         }
 
-        // 5. Render Detail Table
+        // 5. Render Daftar Program Studi
         function renderTable(prodis) {
             const tbody = document.getElementById('detailBody');
             let html = '';
 
             if(prodis.length === 0) {
-                html = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Tidak ada data ditemukan.</td></tr>`;
+                html = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500 bg-white">Tidak ada program studi yang sesuai dengan filter.</td></tr>`;
             } else {
                 prodis.forEach((prodi, index) => {
                     prodi.certs.forEach((cert, certIdx) => {
-                        // Garis bawah lebih tebal untuk batas antar prodi
                         const isLast = certIdx === prodi.certs.length - 1;
-                        const borderClass = isLast ? 'border-b-2 border-slate-200' : 'border-b border-slate-100';
+                        const borderClass = isLast ? 'border-b border-slate-200' : 'border-b border-slate-50';
                         
-                        html += `<tr class="hover:bg-slate-50 transition-colors ${borderClass}">`;
+                        html += `<tr class="hover:bg-slate-50 transition-colors bg-white ${borderClass}">`;
                         
-                        // Kolom No dan Program Studi hanya dirender di baris pertama tiap prodi
+                        // Kolom No dan Program Studi (di-merge jika punya lebih dari 1 sertifikat)
                         if (certIdx === 0) {
                             const rowSpan = prodi.certs.length;
                             html += `
                                 <td rowspan="${rowSpan}" class="px-6 py-4 text-center text-slate-500 font-medium align-top">${index + 1}</td>
-                                <td rowspan="${rowSpan}" class="px-6 py-4 text-slate-800 font-medium align-top">${prodi.nama}</td>
+                                <td rowspan="${rowSpan}" class="px-6 py-4 text-slate-800 font-medium align-top">
+                                    ${prodi.nama}
+                                </td>
                             `;
                         }
 
                         html += `
-                            <td class="px-6 py-4 font-bold text-blue-700 align-middle">${cert.lembaga}</td>
-                            <td class="px-6 py-4 text-slate-600 align-middle">${cert.masaAsli}</td>
+                            <td class="px-6 py-4 align-middle">
+                                <div class="font-bold text-blue-700">${cert.lembaga}</div>
+                                <div class="text-xs text-slate-500 mt-1 font-mono">${cert.masaAsli}</div>
+                            </td>
                             <td class="px-6 py-4 text-center align-middle">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${cert.statusObj.color}">
                                     ${cert.statusObj.status}
@@ -455,7 +451,7 @@
 
         // --- Eksekusi Saat Dimuat ---
         initFilter();
-        updateDashboard(); // Tampilkan semua di awal
+        updateDashboard();
 
     </script>
 </body>
